@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { useForm, usePage } from "@inertiajs/react";
+import { route } from "ziggy-js";
 import ReCAPTCHA from "react-google-recaptcha";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
