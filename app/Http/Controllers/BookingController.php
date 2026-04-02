@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\BookingFormMail;
 use App\Mail\BookingThankYouMail;
+use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -30,7 +31,7 @@ class BookingController extends Controller
             '_honey'          => ['prohibited'],
         ]);
 
-        // Verify reCAPTCHA token with Google
+        // Verify reCAPTCHA with Google
         $recaptchaResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret'   => config('services.recaptcha.secret'),
             'response' => $validated['recaptcha'],
@@ -62,6 +63,22 @@ class BookingController extends Controller
             'flightNumber'    => $validated['flightNumber'] ?? null,
             'message'         => $validated['message'] ?? null,
         ];
+
+        // Persist booking to the database
+        Booking::create([
+            'service'          => $data['service'],
+            'first_name'       => $data['firstName'],
+            'last_name'        => $data['lastName'],
+            'phone'            => $data['phone'],
+            'email'            => $data['email'],
+            'pickup_location'  => $data['pickupLocation'],
+            'dropoff_location' => $data['dropoffLocation'],
+            'date'             => $data['date'],
+            'time'             => $data['time'],
+            'passengers'       => $data['passengers'],
+            'flight_number'    => $data['flightNumber'],
+            'message'          => $data['message'],
+        ]);
 
         // Notify business
         Mail::to(config('mail.to_address', 'contact@vectorshuttle.co.nz'))
