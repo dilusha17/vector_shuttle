@@ -79,7 +79,6 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
   const [selectedService, setSelectedService] = useState<ServiceType>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
-
   const { data, setData, post, processing, errors, reset } = useForm({
     service: "" as string,
     firstName: "",
@@ -127,7 +126,6 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
       toast.error("Please complete the reCAPTCHA verification.");
       return;
     }
-
     post(route("booking.store"), {
       onSuccess: () => {
         toast.success("Booking request submitted!", {

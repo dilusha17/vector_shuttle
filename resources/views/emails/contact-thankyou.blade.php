@@ -13,10 +13,11 @@
     .body { padding: 40px; }
     .body p { color: #cbd5e1; font-size: 15px; line-height: 1.75; margin: 0 0 16px; }
     .summary { background-color: #0f1117; border: 1px solid #2a2d3a; border-radius: 8px; padding: 20px 24px; margin: 24px 0; }
-    .summary .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #2a2d3a; font-size: 14px; }
-    .summary .row:last-child { border-bottom: none; }
-    .summary .row span:first-child { color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.06em; }
-    .summary .row span:last-child { color: #e2e8f0; }
+    .summary table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .summary td { padding: 8px 0; border-bottom: 1px solid #2a2d3a; vertical-align: top; }
+    .summary tr:last-child td { border-bottom: none; }
+    .summary td.label { color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.06em; padding-right: 16px; white-space: nowrap; width: 35%; }
+    .summary td.value { color: #e2e8f0; text-align: right; }
     .cta { text-align: center; margin: 32px 0 0; }
     .btn { display: inline-block; background: linear-gradient(135deg, #0ea5e9, #06b6d4); color: #ffffff; text-decoration: none; font-weight: 700; font-size: 15px; padding: 14px 36px; border-radius: 8px; }
     .footer { background-color: #0f1117; padding: 20px 40px; text-align: center; color: #475569; font-size: 12px; }
@@ -36,14 +37,10 @@
       </p>
 
       <div class="summary">
-        <div class="row">
-          <span>Service</span>
-          <span>{{ $data['serviceType'] }}</span>
-        </div>
-        <div class="row">
-          <span>Phone</span>
-          <span>{{ $data['phone'] }}</span>
-        </div>
+        <table>
+          <tr><td class="label">Service</td><td class="value">{{ $data['serviceType'] }}</td></tr>
+          <tr><td class="label">Phone</td><td class="value">{{ $data['phone'] }}</td></tr>
+        </table>
       </div>
 
       <p>
