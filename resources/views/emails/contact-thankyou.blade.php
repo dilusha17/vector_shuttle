@@ -48,7 +48,7 @@
       </p>
 
       <div class="cta">
-        <a href="https://vectorshuttle.co.nz" class="btn">Visit Our Website</a>
+        <a href="https://vectorshuttle.co.nz" class="btn" style="color:#ffffff;text-decoration:none;">Visit Our Website</a>
       </div>
     </div>
     <div class="footer">
