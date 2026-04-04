@@ -12,6 +12,8 @@ Route::get('/', fn () => Inertia::render('Index'))->name('home');
 Route::get('/about', fn () => Inertia::render('About'))->name('about');
 Route::get('/services', fn () => Inertia::render('Services'))->name('services');
 Route::get('/contact', fn () => Inertia::render('Contact'))->name('contact');
+Route::get('/terms', fn () => Inertia::render('Terms'))->name('terms');
+Route::get('/policy', fn () => Inertia::render('Policy'))->name('policy');
 
 Route::post('/contact/send', [ContactController::class, 'send'])->name('contact.send');
 Route::post('/booking/store', [BookingController::class, 'store'])->name('booking.store');
@@ -41,6 +43,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/{booking}/confirm', [Admin\BookingController::class, 'confirm'])->name('confirm');
             Route::post('/{booking}/start', [Admin\BookingController::class, 'start'])->name('start');
             Route::post('/{booking}/complete', [Admin\BookingController::class, 'complete'])->name('complete');
+        });
+
+        // Clients
+        Route::prefix('clients')->name('clients.')->group(function () {
+            Route::get('/', [Admin\ClientController::class, 'index'])->name('index');
+            Route::get('/{client}', [Admin\ClientController::class, 'show'])->name('show');
+        });
+
+        // Booking History (global audit log)
+        Route::get('/history', [Admin\BookingHistoryController::class, 'index'])->name('history.index');
+
+        // Messages (contact inquiries)
+        Route::prefix('messages')->name('messages.')->group(function () {
+            Route::get('/', [Admin\ContactInquiryController::class, 'index'])->name('index');
+            Route::get('/{inquiry}', [Admin\ContactInquiryController::class, 'show'])->name('show');
+            Route::post('/{inquiry}/reply', [Admin\ContactInquiryController::class, 'reply'])->name('reply');
         });
 
         // Users (admin-only enforced inside controller)

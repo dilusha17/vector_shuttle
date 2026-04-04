@@ -10,6 +10,7 @@ import {
   Clock,
   Users,
   Plane,
+  PlaneLanding,
   MessageSquare,
   DollarSign,
   User,
@@ -19,6 +20,8 @@ import {
   Truck,
   Flag,
   ShieldCheck,
+  RotateCcw,
+  History,
 } from "lucide-react";
 import AdminLayout from "@/components/Admin/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -37,7 +40,7 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { STATUS_LABELS, STATUS_COLORS } from "@/types/admin";
-import type { Booking } from "@/types/admin";
+import type { Booking, BookingHistoryEntry } from "@/types/admin";
 
 interface Props {
   booking: Booking;
@@ -97,7 +100,7 @@ const AcceptDialog = ({ booking }: { booking: Booking }) => {
             <DialogDescription>
               Enter the service charge to send a quotation email to{" "}
               <span className="font-medium text-foreground">
-                {booking.first_name}
+                {booking.client?.first_name ?? booking.full_name}
               </span>
               . The booking status will be updated to{" "}
               <em>Awaiting Confirmation</em>.
@@ -107,7 +110,7 @@ const AcceptDialog = ({ booking }: { booking: Booking }) => {
           <div className="my-5 space-y-4">
             <div className="rounded-lg border border-border bg-secondary/40 p-4">
               <p className="text-xs text-muted-foreground">
-                {booking.service}
+                {booking.service_name}
               </p>
               <p className="text-sm font-medium">
                 {booking.pickup_location} → {booking.dropoff_location}
@@ -133,7 +136,7 @@ const AcceptDialog = ({ booking }: { booking: Booking }) => {
                   placeholder="0.00"
                   value={data.quoted_amount}
                   onChange={(e) => setData("quoted_amount", e.target.value)}
-                  className={`pl-7 ${errors.quoted_amount ? "border-destructive" : ""}`}
+                  className={`pl-7 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${errors.quoted_amount ? "border-destructive" : ""}`}
                   autoFocus
                 />
               </div>
@@ -253,8 +256,8 @@ export default function BookingShow({ booking }: Props) {
     !isTerminal && booking.status !== "ongoing" && booking.status !== "completed";
 
   return (
-    <AdminLayout title={`Booking #${booking.id}`}>
-      <Head title={`Booking #${booking.id}`} />
+    <AdminLayout title={`Booking ${booking.booking_number}`}>
+      <Head title={`Booking ${booking.booking_number}`} />
 
       {/* Top bar */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
@@ -265,7 +268,7 @@ export default function BookingShow({ booking }: Props) {
           </Link>
         </Button>
         <Separator orientation="vertical" className="h-5" />
-        <span className="text-sm text-muted-foreground">#{booking.id}</span>
+        <span className="font-mono text-sm text-muted-foreground">{booking.booking_number}</span>
         <Badge
           className={`border text-xs ${STATUS_COLORS[booking.status]}`}
           variant="outline"
@@ -273,7 +276,16 @@ export default function BookingShow({ booking }: Props) {
           {STATUS_LABELS[booking.status]}
         </Badge>
         <span className="ml-auto text-xs text-muted-foreground">
-          Submitted {booking.created_at}
+          Submitted{" "}
+          {new Date(booking.created_at).toLocaleString("en-NZ", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+            timeZone: "Pacific/Auckland",
+          })}
         </span>
       </div>
 
@@ -293,8 +305,8 @@ export default function BookingShow({ booking }: Props) {
                 label="Full Name"
                 value={booking.full_name}
               />
-              <DetailRow icon={Mail} label="Email" value={booking.email} />
-              <DetailRow icon={Phone} label="Phone" value={booking.phone} />
+              <DetailRow icon={Mail} label="Email" value={booking.client?.email} />
+              <DetailRow icon={Phone} label="Phone" value={booking.client?.phone} />
             </CardContent>
           </Card>
 
@@ -309,8 +321,15 @@ export default function BookingShow({ booking }: Props) {
               <DetailRow
                 icon={MapPin}
                 label="Service"
-                value={booking.service}
+                value={booking.service_name}
               />
+              {booking.trip_type && (
+                <DetailRow
+                  icon={PlaneLanding}
+                  label="Trip Type"
+                  value={booking.trip_type.name}
+                />
+              )}
               <DetailRow
                 icon={MapPin}
                 label="Pick-up Location"
@@ -338,6 +357,29 @@ export default function BookingShow({ booking }: Props) {
                   label="Flight Number"
                   value={booking.flight_number}
                 />
+              )}
+              {booking.return_date && (
+                <>
+                  <div className="pt-2 pb-1">
+                    <p className="text-xs font-semibold text-primary uppercase tracking-wider">Return Trip</p>
+                  </div>
+                  <DetailRow
+                    icon={MapPin}
+                    label="Return Pick-up"
+                    value={booking.return_pickup_location}
+                  />
+                  <DetailRow
+                    icon={MapPin}
+                    label="Return Drop-off"
+                    value={booking.return_dropoff_location}
+                  />
+                  <DetailRow
+                    icon={Calendar}
+                    label="Return Date"
+                    value={new Date(booking.return_date).toLocaleDateString('en-NZ', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                  />
+                  <DetailRow icon={Clock} label="Return Time" value={booking.return_time} />
+                </>
               )}
               {booking.message && (
                 <DetailRow
@@ -460,7 +502,7 @@ export default function BookingShow({ booking }: Props) {
                 </div>
                 {booking.processed_at && (
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Updated: {new Date(booking.processed_at).toLocaleString('en-NZ', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    Updated: {new Date(booking.processed_at).toLocaleString('en-NZ', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Pacific/Auckland' })}
                   </p>
                 )}
               </CardContent>
@@ -515,6 +557,64 @@ export default function BookingShow({ booking }: Props) {
           </Card>
         </div>
       </div>
+
+      {/* Booking History — full width below grid */}
+      {booking.history && booking.history.length > 0 && (
+        <div className="mt-6">
+          <Card className="border-border bg-card">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+                <History className="h-4 w-4 text-primary" />
+                Booking History
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ol className="relative border-l border-border ml-3 space-y-0">
+                {booking.history.map((entry, i) => (
+                  <li key={entry.id} className="mb-6 ml-6 last:mb-0">
+                    <span className="absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-secondary ring-4 ring-card">
+                      <span className="h-2 w-2 rounded-full bg-primary" />
+                    </span>
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{entry.action}</p>
+                        {(entry.from_status || entry.to_status) && (
+                          <p className="mt-0.5 text-xs text-muted-foreground">
+                            {entry.from_status && (
+                              <span className="capitalize">{entry.from_status.replace(/_/g, ' ')}</span>
+                            )}
+                            {entry.from_status && entry.to_status && " → "}
+                            {entry.to_status && (
+                              <span className={`font-medium capitalize ${STATUS_COLORS[entry.to_status as keyof typeof STATUS_COLORS]?.split(' ')[1] ?? 'text-foreground'}`}>
+                                {entry.to_status.replace(/_/g, ' ')}
+                              </span>
+                            )}
+                          </p>
+                        )}
+                        {entry.note && (
+                          <p className="mt-1 text-xs text-muted-foreground italic">{entry.note}</p>
+                        )}
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {entry.performer
+                            ? <>By <span className="font-medium text-foreground">{entry.performer.name}</span></>
+                            : <span className="italic">Customer</span>}
+                        </p>
+                      </div>
+                      <time className="shrink-0 text-xs text-muted-foreground">
+                        {new Date(entry.created_at).toLocaleString('en-NZ', {
+                          day: '2-digit', month: 'short', year: 'numeric',
+                          hour: '2-digit', minute: '2-digit', hour12: true,
+                          timeZone: 'Pacific/Auckland',
+                        })}
+                      </time>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </AdminLayout>
   );
 }

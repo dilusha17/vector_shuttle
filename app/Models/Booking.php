@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class Booking extends Model
@@ -15,45 +14,104 @@ class Booking extends Model
     const STATUS_COMPLETED             = 'completed';
     const STATUS_REJECTED              = 'rejected';
 
-    protected $appends = ['full_name'];
+    /**
+     * Appended attributes serialised to JSON (sent to frontend).
+     * Keep accessor-computed strings lean â€” relationships are loaded separately.
+     */
+    protected $appends = ['full_name', 'service_name', 'trip_type_name', 'is_two_way'];
 
     protected $fillable = [
-        'service',
-        'first_name',
-        'last_name',
-        'phone',
-        'email',
-        'pickup_location',
-        'dropoff_location',
+        'booking_number',
+        'clients_id',
+        'service_id',
+        'trip_type_id',
         'date',
         'time',
+        'pickup_location',
+        'dropoff_location',
+        'return_date',
+        'return_time',
+        'return_pickup_location',
+        'return_dropoff_location',
         'passengers',
         'flight_number',
         'message',
-        'status',
         'quoted_amount',
+        'status',
         'processed_by',
         'processed_at',
     ];
 
     protected $casts = [
-        'date'         => 'date',
-        'passengers'   => 'integer',
+        'date'          => 'date',
+        'return_date'   => 'date',
+        'passengers'    => 'integer',
         'quoted_amount' => 'decimal:2',
-        'processed_at' => 'datetime',
+        'processed_at'  => 'datetime',
     ];
+
+    // â”€â”€ Relationships â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'clients_id');
+    }
+
+    public function bookingService()
+    {
+        return $this->belongsTo(Service::class, 'service_id');
+    }
+
+    public function tripType()
+    {
+        return $this->belongsTo(TripType::class, 'trip_type_id');
+    }
 
     public function processor()
     {
         return $this->belongsTo(User::class, 'processed_by');
     }
 
-    protected function fullName(): Attribute
+    public function history()
     {
-        return Attribute::make(
-            get: fn () => "{$this->first_name} {$this->last_name}",
-        );
+        return $this->hasMany(BookingHistory::class)->orderBy('created_at', 'asc');
     }
+
+    // â”€â”€ Appended accessors (included in JSON serialisation) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    public function getFullNameAttribute(): string
+    {
+        return $this->getRelationValue('client')?->full_name ?? '';
+    }
+
+    public function getServiceNameAttribute(): string
+    {
+        return $this->getRelationValue('bookingService')?->name ?? '';
+    }
+
+    public function getTripTypeNameAttribute(): ?string
+    {
+        return $this->getRelationValue('tripType')?->name;
+    }
+
+    public function getIsTwoWayAttribute(): bool
+    {
+        return $this->getRelationValue('tripType')?->name === 'Two-Way';
+    }
+
+    // â”€â”€ Non-appended accessors (used in PHP / Blade only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    public function getFirstNameAttribute(): string
+    {
+        return $this->client?->first_name ?? '';
+    }
+
+    public function getEmailAttribute(): string
+    {
+        return $this->client?->email ?? '';
+    }
+
+    // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public static function getStatuses(): array
     {
@@ -66,19 +124,5 @@ class Booking extends Model
             self::STATUS_COMPLETED,
             self::STATUS_REJECTED,
         ];
-    }
-
-    public static function getStatusLabel(string $status): string
-    {
-        return match ($status) {
-            self::STATUS_PENDING               => 'Pending',
-            self::STATUS_ACCEPTED              => 'Accepted',
-            self::STATUS_AWAITING_CONFIRMATION => 'Awaiting Confirmation',
-            self::STATUS_CONFIRMED             => 'Confirmed',
-            self::STATUS_ONGOING               => 'Ongoing',
-            self::STATUS_COMPLETED             => 'Completed',
-            self::STATUS_REJECTED              => 'Rejected',
-            default                            => ucfirst(str_replace('_', ' ', $status)),
-        };
     }
 }

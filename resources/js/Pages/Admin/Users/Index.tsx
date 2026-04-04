@@ -399,7 +399,7 @@ export default function UsersIndex({ users }: Props) {
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {user.created_at
-                        ? new Date(user.created_at).toLocaleDateString()
+                        ? new Date(user.created_at).toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Pacific/Auckland' })
                         : "—"}
                     </TableCell>
                     <TableCell className="pr-4">

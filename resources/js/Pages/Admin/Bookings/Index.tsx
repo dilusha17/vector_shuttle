@@ -202,19 +202,19 @@ export default function BookingsIndex({ bookings, filters, statuses }: Props) {
                     key={b.id}
                     className="cursor-pointer border-border hover:bg-secondary/40"
                   >
-                    <TableCell className="pl-5 text-sm text-muted-foreground">
-                      #{b.id}
+                    <TableCell className="pl-5 text-sm font-mono text-muted-foreground">
+                      {b.booking_number}
                     </TableCell>
                     <TableCell>
                       <div>
                         <p className="text-sm font-medium">{b.full_name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {b.email}
+                          {b.client?.email ?? ''}
                         </p>
                       </div>
                     </TableCell>
                     <TableCell className="max-w-[150px]">
-                      <span className="truncate text-sm">{b.service}</span>
+                      <span className="truncate text-sm">{b.service_name}</span>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {new Date(b.date).toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -231,7 +231,7 @@ export default function BookingsIndex({ bookings, filters, statuses }: Props) {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
-                      {new Date(b.created_at).toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      {new Date(b.created_at).toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Pacific/Auckland' })}
                     </TableCell>
                     <TableCell className="pr-4">
                       <Button variant="ghost" size="sm" asChild>

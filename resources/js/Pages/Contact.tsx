@@ -6,17 +6,18 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BookingModal from "@/components/BookingModal";
 import { Button } from "@/components/ui/button";
+import { PhoneCountrySelect } from "@/components/ui/phone-country-select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
 import { toast } from "sonner";
 
 const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY as string;
-
-const countryCodes = [
-  { code: "+64", country: "NZ" },
-  { code: "+61", country: "AU" },
-  { code: "+1", country: "US" },
-  { code: "+44", country: "UK" },
-];
 
 const serviceTypes = [
   "Shared Airport Transfer",
@@ -28,6 +29,7 @@ const serviceTypes = [
 
 const Contact = () => {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [countryKey, setCountryKey] = useState("+64||New Zealand");
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const { props } = usePage<{ flash?: { success?: string } }>();
 
@@ -64,6 +66,7 @@ const Contact = () => {
         });
         reset();
         recaptchaRef.current?.reset();
+        setCountryKey("+64||New Zealand");
       },
       onError: () => {
         recaptchaRef.current?.reset();
@@ -227,21 +230,17 @@ const Contact = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Phone Number *
+                    WhatsApp Number *
                   </label>
                   <div className="flex gap-2">
-                    <select
-                      name="countryCode"
-                      value={data.countryCode}
-                      onChange={handleInputChange}
-                      className="h-12 px-3 rounded-lg bg-secondary border border-border text-foreground focus:outline-none focus:border-primary transition-colors"
-                    >
-                      {countryCodes.map((cc) => (
-                        <option key={cc.code} value={cc.code}>
-                          {cc.country} {cc.code}
-                        </option>
-                      ))}
-                    </select>
+                    <PhoneCountrySelect
+                      value={countryKey}
+                      onChange={(key) => {
+                        setCountryKey(key);
+                        setData("countryCode", key.split("||")[0]);
+                      }}
+                      className="w-[130px]"
+                    />
                     <input
                       type="tel"
                       name="phone"
@@ -259,20 +258,22 @@ const Contact = () => {
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Service Type *
                   </label>
-                  <select
-                    name="serviceType"
+                  <Select
                     value={data.serviceType}
-                    onChange={handleInputChange}
+                    onValueChange={(value) => setData("serviceType", value)}
                     required
-                    className="w-full h-12 px-4 rounded-lg bg-secondary border border-border text-foreground focus:outline-none focus:border-primary transition-colors"
                   >
-                    <option value="">Select a service...</option>
-                    {serviceTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full h-12 bg-secondary border-border text-foreground">
+                      <SelectValue placeholder="Select a service..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      {serviceTypes.map((type) => (
+                        <SelectItem key={type} value={type} className="cursor-pointer">
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {errors.serviceType && <p className="mt-1 text-sm text-red-400">{errors.serviceType}</p>}
                 </div>
 

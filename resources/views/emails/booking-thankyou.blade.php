@@ -39,14 +39,28 @@
 
       <div class="summary">
         <table>
+          <tr><td class="label" style="color:#0ea5e9;">Booking Number</td><td class="value" style="color:#0ea5e9;font-weight:700;font-size:16px;letter-spacing:0.05em;">{{ $data['bookingNumber'] }}</td></tr>
           <tr><td class="label">Service</td><td class="value">{{ $data['service'] }}</td></tr>
-          <tr><td class="label">Pick-up</td><td class="value">{{ $data['pickupLocation'] }}</td></tr>
-          <tr><td class="label">Drop-off</td><td class="value">{{ $data['dropoffLocation'] }}</td></tr>
-          <tr><td class="label">Date</td><td class="value">{{ \Carbon\Carbon::parse($data['date'])->format('D, d M Y') }}</td></tr>
-          <tr><td class="label">Time</td><td class="value">{{ $data['time'] }}</td></tr>
+          @if(!empty($data['tripDirection']))
+          <tr><td class="label">Direction</td><td class="value">{{ $data['tripDirection'] }}</td></tr>
+          @endif
+          @if(!empty($data['tripType']))
+          <tr><td class="label">Trip Type</td><td class="value">{{ $data['tripType'] === 'two_way' ? 'Two Way (Return)' : 'One Way' }}</td></tr>
+          @endif
+          <tr><td class="label" style="color:#0ea5e9;">{{ !empty($data['returnDate']) ? 'Outbound Pick-up' : 'Pick-up' }}</td><td class="value">{{ $data['pickupLocation'] }}</td></tr>
+          <tr><td class="label" style="color:#0ea5e9;">{{ !empty($data['returnDate']) ? 'Outbound Drop-off' : 'Drop-off' }}</td><td class="value">{{ $data['dropoffLocation'] }}</td></tr>
+          <tr><td class="label">{{ !empty($data['returnDate']) ? 'Departure Date' : 'Date' }}</td><td class="value">{{ \Carbon\Carbon::parse($data['date'])->format('D, d M Y') }}</td></tr>
+          <tr><td class="label">{{ !empty($data['returnDate']) ? 'Departure Time' : 'Time' }}</td><td class="value">{{ $data['time'] }}</td></tr>
           <tr><td class="label">Passengers</td><td class="value">{{ $data['passengers'] }}</td></tr>
-          @if($data['flightNumber'])
+          @if(!empty($data['flightNumber']))
           <tr><td class="label">Flight</td><td class="value">{{ $data['flightNumber'] }}</td></tr>
+          @endif
+          @if(!empty($data['returnDate']))
+          <tr><td class="label" colspan="2" style="padding-top:14px;padding-bottom:6px;color:#7c3aed;font-size:10px;letter-spacing:0.08em;">RETURN TRIP</td></tr>
+          <tr><td class="label" style="color:#a78bfa;">Return Pick-up</td><td class="value">{{ $data['returnPickupLocation'] }}</td></tr>
+          <tr><td class="label" style="color:#a78bfa;">Return Drop-off</td><td class="value">{{ $data['returnDropoffLocation'] }}</td></tr>
+          <tr><td class="label">Return Date</td><td class="value">{{ \Carbon\Carbon::parse($data['returnDate'])->format('D, d M Y') }}</td></tr>
+          <tr><td class="label">Return Time</td><td class="value">{{ $data['returnTime'] }}</td></tr>
           @endif
         </table>
       </div>
@@ -56,7 +70,7 @@
       </div>
 
       <div class="cta">
-        <a href="https://vectorshuttle.co.nz" class="btn">Visit Our Website</a>
+        <a href="https://vectorshuttle.co.nz" class="btn" style="color:#ffffff;text-decoration:none;">Visit Our Website</a>
       </div>
     </div>
     <div class="footer">
