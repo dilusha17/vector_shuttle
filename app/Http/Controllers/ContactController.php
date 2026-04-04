@@ -24,7 +24,7 @@ class ContactController extends Controller
             '_honey'       => ['prohibited'],
         ]);
 
-        // Verify reCAPTCHA with Google
+        // Verify reCAPTCHA v2
         $recaptchaResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret'   => config('services.recaptcha.secret'),
             'response' => $validated['recaptcha'],
