@@ -10,6 +10,7 @@ import {
   CheckSquare,
   XCircle,
   ArrowRight,
+  Inbox,
 } from "lucide-react";
 import {
   PieChart,
@@ -43,6 +44,7 @@ interface Stats {
   ongoing: number;
   completed: number;
   rejected: number;
+  unread_messages: number;
 }
 
 interface RecentBooking {
@@ -116,6 +118,13 @@ const statCards = [
     icon: XCircle,
     color: "text-red-400",
     bg: "bg-red-500/10",
+  },
+  {
+    key: "unread_messages" as const,
+    label: "Unread Messages",
+    icon: Inbox,
+    color: "text-sky-400",
+    bg: "bg-sky-500/10",
   },
 ];
 

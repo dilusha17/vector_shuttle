@@ -14,14 +14,14 @@ class BookingController extends Controller
 
     public function index(Request $request)
     {
-        $query = Booking::with('processor')->latest();
+        $query = Booking::with(['client', 'bookingService', 'tripType', 'processor'])->latest();
 
         if ($search = $request->get('search')) {
-            $query->where(function ($q) use ($search) {
+            $query->whereHas('client', function ($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('phone', 'like', "%{$search}%");
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
             });
         }
 
@@ -30,10 +30,10 @@ class BookingController extends Controller
         }
 
         if ($service = $request->get('service')) {
-            $query->where('service', 'like', "%{$service}%");
+            $query->whereHas('bookingService', fn ($q) => $q->where('name', 'like', "%{$service}%"));
         }
 
-        $allowedSorts = ['created_at', 'date', 'status', 'service'];
+        $allowedSorts = ['created_at', 'date', 'status'];
         $sortBy  = in_array($request->get('sort_by'), $allowedSorts) ? $request->get('sort_by') : 'created_at';
         $sortDir = $request->get('sort_dir') === 'asc' ? 'asc' : 'desc';
         $query->orderBy($sortBy, $sortDir);
@@ -42,14 +42,20 @@ class BookingController extends Controller
 
         return Inertia::render('Admin/Bookings/Index', [
             'bookings' => $bookings,
-            'filters'  => $request->only(['search', 'status', 'service', 'sort_by', 'sort_dir']),
+            'filters'  => [
+                'search'   => $request->get('search'),
+                'status'   => $request->get('status'),
+                'service'  => $request->get('service'),
+                'sort_by'  => $request->get('sort_by'),
+                'sort_dir' => $request->get('sort_dir'),
+            ],
             'statuses' => Booking::getStatuses(),
         ]);
     }
 
     public function show(Booking $booking)
     {
-        $booking->load('processor');
+        $booking->load(['client', 'bookingService', 'tripType', 'processor', 'history.performer']);
 
         return Inertia::render('Admin/Bookings/Show', [
             'booking'  => $booking,

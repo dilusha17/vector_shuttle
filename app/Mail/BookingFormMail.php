@@ -18,7 +18,7 @@ class BookingFormMail extends Mailable
     {
         return new Envelope(
             replyTo: [$this->data['email']],
-            subject: 'New Booking Request – ' . $this->data['firstName'] . ' ' . $this->data['lastName'],
+            subject: 'New Booking Request [' . $this->data['bookingNumber'] . '] – ' . $this->data['firstName'] . ' ' . $this->data['lastName'],
         );
     }
 

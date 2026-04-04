@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { Menu, X, Phone } from "lucide-react";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-text.png";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -32,9 +32,9 @@ const Navbar = ({ onBookNow }: NavbarProps) => {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled
-          ? "bg-background/95 backdrop-blur-md border-b border-border shadow-soft"
+        "fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl transition-colors duration-300",
+        isScrolled || isMobileMenuOpen
+          ? "bg-background/60"
           : "bg-transparent"
       )}
     >
@@ -42,7 +42,7 @@ const Navbar = ({ onBookNow }: NavbarProps) => {
         <nav className="flex items-center justify-between h-24 md:h-32">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <img src={logo} alt="Vector Shuttle" className="h-20 md:h-28 w-auto drop-shadow-md" />
+            <img src={logo} alt="Vector Shuttle" className="h-12 md:h-16 w-auto drop-shadow-md" />
           </Link>
 
           {/* Desktop Navigation */}
@@ -86,37 +86,35 @@ const Navbar = ({ onBookNow }: NavbarProps) => {
           </button>
         </nav>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu — inside header so it shares the same blur layer, no seam */}
         {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-24 left-0 right-0 bg-background/98 backdrop-blur-md border-b border-border animate-fade-in">
-            <div className="container mx-auto px-4 py-6 flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  href={link.path}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={cn(
-                    "text-base font-medium py-2 transition-colors",
-                    url === link.path
-                      ? "text-primary"
-                      : "text-muted-foreground"
-                  )}
-                >
-                  {link.name}
-                </Link>
-              ))}
-              <Button
-                variant="hero"
-                size="lg"
-                className="mt-4"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  onBookNow();
-                }}
+          <div className="md:hidden pb-6 flex flex-col gap-4 animate-fade-in">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                href={link.path}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={cn(
+                  "text-base font-medium py-2 transition-colors",
+                  url === link.path
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                )}
               >
-                Book Now
-              </Button>
-            </div>
+                {link.name}
+              </Link>
+            ))}
+            <Button
+              variant="hero"
+              size="lg"
+              className="mt-4"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                onBookNow();
+              }}
+            >
+              Book Now
+            </Button>
           </div>
         )}
       </div>

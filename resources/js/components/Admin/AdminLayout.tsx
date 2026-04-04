@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, router, usePage } from "@inertiajs/react";
 import { route } from "ziggy-js";
-import { Toaster } from "sonner";
 import { toast } from "sonner";
 import {
   LayoutDashboard,
@@ -12,6 +11,9 @@ import {
   User,
   Shield,
   X,
+  UserCircle,
+  History,
+  Inbox,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -27,6 +29,9 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "admin.dashboard", icon: LayoutDashboard },
   { label: "Bookings", href: "admin.bookings.index", icon: CalendarCheck },
+  { label: "Clients", href: "admin.clients.index", icon: UserCircle },
+  { label: "History", href: "admin.history.index", icon: History },
+  { label: "Messages", href: "admin.messages.index", icon: Inbox },
   { label: "Users", href: "admin.users.index", icon: Users, adminOnly: true },
 ];
 
@@ -79,7 +84,11 @@ const SidebarContent = ({ onClose }: SidebarContentProps) => {
           const isActive =
             currentPath === route(item.href) ||
             (item.href === "admin.bookings.index" &&
-              currentPath.startsWith("/admin/bookings"));
+              currentPath.startsWith("/admin/bookings")) ||
+            (item.href === "admin.clients.index" &&
+              currentPath.startsWith("/admin/clients")) ||
+            (item.href === "admin.messages.index" &&
+              currentPath.startsWith("/admin/messages"));
           return (
             <Link
               key={item.label}
@@ -158,7 +167,6 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Toaster richColors position="top-right" />
 
       {/* Desktop Sidebar */}
       <aside className="hidden w-64 shrink-0 border-r border-border lg:flex lg:flex-col">

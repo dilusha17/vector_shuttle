@@ -28,9 +28,16 @@
     <div class="header">
       <h1>Vector Shuttle</h1>
       <p>New Booking Request Received</p>
+      <p style="margin:10px 0 0;font-size:16px;font-weight:700;letter-spacing:0.05em;color:#fff;">{{ $data['bookingNumber'] }}</p>
     </div>
     <div class="body">
       <span class="badge">{{ $data['service'] }}</span>
+      @if(!empty($data['tripDirection']))
+      <span class="badge" style="background:#0f766e;color:#fff;display:inline-block;padding:4px 12px;border-radius:9999px;font-size:13px;margin-left:6px;">{{ $data['tripDirection'] }}</span>
+      @endif
+      @if(!empty($data['tripType']))
+      <span class="badge" style="background:#7c3aed;color:#fff;display:inline-block;padding:4px 12px;border-radius:9999px;font-size:13px;margin-left:6px;">{{ $data['tripType'] === 'two_way' ? 'Two Way' : 'One Way' }}</span>
+      @endif
       <h2>Booking Details</h2>
 
       <p class="section-title">Customer Information</p>
@@ -55,7 +62,7 @@
 
       <hr class="divider" />
 
-      <p class="section-title">Trip Details</p>
+      <p class="section-title">Outbound Trip</p>
       <div class="grid">
         <div class="field">
           <label>Pick-up Location</label>
@@ -77,13 +84,36 @@
           <label>Passengers</label>
           <span>{{ $data['passengers'] }}</span>
         </div>
-        @if($data['flightNumber'])
+        @if(!empty($data['flightNumber']))
         <div class="field">
           <label>Flight Number</label>
           <span>{{ $data['flightNumber'] }}</span>
         </div>
         @endif
       </div>
+
+      @if(!empty($data['returnDate']))
+      <hr class="divider" />
+      <p class="section-title" style="color:#7c3aed;">Return Trip</p>
+      <div class="grid">
+        <div class="field">
+          <label>Return Pick-up</label>
+          <span>{{ $data['returnPickupLocation'] }}</span>
+        </div>
+        <div class="field">
+          <label>Return Drop-off</label>
+          <span>{{ $data['returnDropoffLocation'] }}</span>
+        </div>
+        <div class="field">
+          <label>Return Date</label>
+          <span>{{ \Carbon\Carbon::parse($data['returnDate'])->format('D, d M Y') }}</span>
+        </div>
+        <div class="field">
+          <label>Return Time</label>
+          <span>{{ $data['returnTime'] }}</span>
+        </div>
+      </div>
+      @endif
 
       @if($data['message'])
       <hr class="divider" />

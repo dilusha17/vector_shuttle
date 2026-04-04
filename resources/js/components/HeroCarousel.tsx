@@ -55,7 +55,7 @@ const HeroCarousel = ({ onBookNow }: HeroCarouselProps) => {
           key={slide.id}
           className={cn(
             "absolute inset-0 transition-opacity duration-1000",
-            index === currentSlide ? "opacity-100" : "opacity-0"
+            index === currentSlide ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
           )}
         >
           {/* Background Image */}

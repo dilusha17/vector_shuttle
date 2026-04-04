@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\ContactFormMail;
 use App\Mail\ContactThankYouMail;
+use App\Models\ContactInquiry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -35,12 +36,21 @@ class ContactController extends Controller
         }
 
         $data = [
-            'name'         => $validated['name'],
-            'email'        => $validated['email'],
-            'phone'        => $validated['countryCode'] . ' ' . $validated['phone'],
-            'serviceType'  => $validated['serviceType'],
-            'message'      => $validated['message'],
+            'name'        => $validated['name'],
+            'email'       => $validated['email'],
+            'phone'       => $validated['countryCode'] . ' ' . $validated['phone'],
+            'serviceType' => $validated['serviceType'],
+            'message'     => $validated['message'],
         ];
+
+        // Save to database
+        ContactInquiry::create([
+            'name'         => $data['name'],
+            'email'        => $data['email'],
+            'phone'        => $data['phone'],
+            'service_type' => $data['serviceType'],
+            'message'      => $data['message'],
+        ]);
 
         // Notify business
         Mail::to(config('mail.to_address', 'contact@vectorshuttle.co.nz'))
