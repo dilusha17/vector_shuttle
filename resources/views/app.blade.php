@@ -6,7 +6,7 @@
     <title inertia>{{ config('app.name', 'Vector Shuttle') }}</title>
     @routes
     @viteReactRefresh
-    @vite(['resources/css/app.css', 'resources/js/app.tsx'])
+    @vite(['resources/css/app.css', 'resources/js/App.tsx'])
     @inertiaHead
 </head>
 <body class="antialiased overflow-x-hidden">
